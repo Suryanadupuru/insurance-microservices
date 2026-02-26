@@ -1,0 +1,22 @@
+# Docker profile — overrides application.yml when running in containers
+spring:
+  security:
+    user:
+      name: ${EUREKA_USERNAME:eureka-admin}
+      password: ${EUREKA_PASSWORD:eureka-password}
+
+eureka:
+  instance:
+    hostname: eureka-server   # Docker service name
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@eureka-server:8761/eureka/
+  server:
+    enable-self-preservation: true   # Enable in production/docker
+    renewal-percent-threshold: 0.85
+
+logging:
+  level:
+    com.netflix.eureka: WARN
+    com.netflix.discovery: WARN
