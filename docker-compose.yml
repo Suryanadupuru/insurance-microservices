@@ -57,38 +57,38 @@ services:
   # ─────────────────────────────────────────────────────────────
   # INFRASTRUCTURE: Config Server  (to be added next)
   # ─────────────────────────────────────────────────────────────
-  # config-server:
-  #   build:
-  #     context: .
-  #     dockerfile: config-server/Dockerfile
-  #   container_name: config-server
-  #   ports:
-  #     - "8888:8888"
-  #   depends_on:
-  #     eureka-server:
-  #       condition: service_healthy
-  #   environment:
-  #     - SPRING_PROFILES_ACTIVE=docker
-  #   networks:
-  #     - insurance-network
+  config-server:
+     build:
+       context: .
+       dockerfile: config-server/Dockerfile
+     container_name: config-server
+     ports:
+       - "8888:8888"
+     depends_on:
+       eureka-server:
+         condition: service_healthy
+     environment:
+       - SPRING_PROFILES_ACTIVE=docker
+     networks:
+       - insurance-network
 
   # ─────────────────────────────────────────────────────────────
   # INFRASTRUCTURE: API Gateway  (to be added next)
   # ─────────────────────────────────────────────────────────────
-  # api-gateway:
-  #   build:
-  #     context: .
-  #     dockerfile: api-gateway/Dockerfile
-  #   container_name: api-gateway
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     eureka-server:
-  #       condition: service_healthy
-  #     config-server:
-  #       condition: service_healthy
-  #   networks:
-  #     - insurance-network
+  api-gateway:
+     build:
+       context: .
+       dockerfile: api-gateway/Dockerfile
+     container_name: api-gateway
+     ports:
+       - "8080:8080"
+     depends_on:
+       eureka-server:
+         condition: service_healthy
+       config-server:
+         condition: service_healthy
+     networks:
+       - insurance-network
 
   # ─────────────────────────────────────────────────────────────
   # INFRASTRUCTURE: Auth Server  (to be added next)
