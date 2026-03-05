@@ -1,0 +1,80 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+
+  # ── Database ───────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:mysql://localhost:3306/insurance_microservices_system?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: surya
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+
+  # ── JPA / Hibernate ────────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: none            # Table created by SQL script below
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # ── SQL Init ───────────────────────────────────────────────────────────────
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:/db/migration/create_users_tables.sql
+
+  # ── Config Server (enable after all services are built) ───────────────────
+  #config:
+  #  import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+
+# ── Eureka Client (enable when ready) ─────────────────────────────────────
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+#    fetch-registry: true
+#    register-with-eureka: true
+#  instance:
+#    prefer-ip-address: true
+#    instance-id: ${spring.application.name}:${server.port}
+
+# ── Actuator ──────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# ── SpringDoc / Swagger ───────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+# ── Logging ───────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.sun.user_service: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/user-service.log
