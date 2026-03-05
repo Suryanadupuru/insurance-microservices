@@ -14,6 +14,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 public class AsyncConfig {
+	
 
     @Bean(name = "emailTaskExecutor")
     public Executor emailTaskExecutor() {
