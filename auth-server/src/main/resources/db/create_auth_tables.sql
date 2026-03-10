@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at                  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     last_login_at               DATETIME,
 
-    INDEX idx_auth_user_email           (email),
-    INDEX idx_auth_verification_token   (verification_token),
-    INDEX idx_auth_reset_token          (password_reset_token)
+    INDEX idx_user_email           (email),
+    INDEX idx_verification_token   (verification_token),
+    INDEX idx_user_reset_token          (password_reset_token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
 -- Change immediately in production!
 -- ─────────────────────────────────────────────────────────────────────────────
 
-INSERT IGNORE INTO auth_users (
+INSERT IGNORE INTO users (
     first_name, last_name, email, password,
     status, enabled, account_non_locked, account_non_expired
 ) VALUES (
@@ -67,8 +67,8 @@ INSERT IGNORE INTO auth_users (
     'ACTIVE', TRUE, TRUE, TRUE
 );
 
-INSERT IGNORE INTO auth_user_roles (user_id, role)
-SELECT id, 'ADMIN' FROM auth_users WHERE email = 'admin@insuranceapp.com';
+INSERT IGNORE INTO user_roles (user_id, role)
+SELECT id, 'ADMIN' FROM users WHERE email = 'admin@insuranceapp.com';
 
-INSERT IGNORE INTO auth_user_roles (user_id, role)
-SELECT id, 'USER' FROM auth_users WHERE email = 'admin@insuranceapp.com';
+INSERT IGNORE INTO user_roles (user_id, role)
+SELECT id, 'USER' FROM users WHERE email = 'admin@insuranceapp.com';
