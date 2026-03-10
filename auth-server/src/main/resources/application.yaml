@@ -1,0 +1,97 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: auth-server
+
+  # ── Database ──────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:mysql://localhost:3306/insurance_microservices_system?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: surya
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+
+  # ── JPA / Hibernate ───────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: none           # Tables created by SQL script below
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # ── SQL Init — creates auth_users and auth_user_roles tables ─────────────
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:/db/create_auth_tables.sql
+
+  # ── Mail ──────────────────────────────────────────────────────────────────
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# ── Eureka Client ────────────────────────────────────────────────────────────
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+#    fetch-registry: true
+#    register-with-eureka: true
+#  instance:
+#    prefer-ip-address: true
+#    instance-id: ${spring.application.name}:${server.port}
+
+# ── JWT ───────────────────────────────────────────────────────────────────────
+# IMPORTANT: jwt.secret must be the same value configured in api-gateway
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: 900000           # 15 minutes in milliseconds
+  refresh-expiration: 604800000 # 7 days in milliseconds
+
+# ── App Config ────────────────────────────────────────────────────────────────
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8090}
+  email:
+    from: noreply@insuranceapp.com
+
+# ── Actuator ─────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+# ── SpringDoc / Swagger ───────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.sun.auth_server: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/auth-server.log

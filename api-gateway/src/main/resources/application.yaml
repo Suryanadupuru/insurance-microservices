@@ -1,0 +1,281 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  # ─── Redis (used for rate limiting) ────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      connect-timeout: 2000
+
+  # ─── Spring Cloud Gateway Routes ───────────────────────────────────────────
+  cloud:
+    gateway:
+      # Auto-discover services from Eureka and create default routes
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      # Global default filters applied to ALL routes
+      #default-filters:
+       # - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        #- name: RequestRateLimiter
+         # args:
+          #  redis-rate-limiter.replenishRate: 20       # 20 requests/sec per user
+           # redis-rate-limiter.burstCapacity: 40       # allow bursts up to 40
+            #redis-rate-limiter.requestedTokens: 1
+            #key-resolver: "#{@ipKeyResolver}"
+
+      routes:
+        # ── Auth Server ──────────────────────────────────────────────────────
+        - id: auth-server
+          uri: lb://auth-server
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: auth-server-cb
+                fallbackUri: forward:/fallback/auth-server
+
+        # ── User Service ─────────────────────────────────────────────────────
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: user-service-cb
+                fallbackUri: forward:/fallback/user-service
+
+        # ── Policy Service ───────────────────────────────────────────────────
+        - id: policy-service
+          uri: lb://policy-service
+          predicates:
+            - Path=/api/policies/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: policy-service-cb
+                fallbackUri: forward:/fallback/policy-service
+
+        # ── Policy Search Service ────────────────────────────────────────────
+        - id: policy-search-service
+          uri: lb://policy-search-service
+          predicates:
+            - Path=/api/policy-search/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: policy-search-cb
+                fallbackUri: forward:/fallback/policy-search-service
+
+        # ── Application Service ──────────────────────────────────────────────
+        - id: application-service
+          uri: lb://application-service
+          predicates:
+            - Path=/api/applications/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: application-service-cb
+                fallbackUri: forward:/fallback/application-service
+
+        # ── Claims Service ───────────────────────────────────────────────────
+        - id: claims-service
+          uri: lb://claims-service
+          predicates:
+            - Path=/api/claims/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: claims-service-cb
+                fallbackUri: forward:/fallback/claims-service
+
+        # ── Claims Tracking Service ──────────────────────────────────────────
+        - id: claims-tracking-service
+          uri: lb://claims-tracking-service
+          predicates:
+            - Path=/api/claims-tracking/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: claims-tracking-cb
+                fallbackUri: forward:/fallback/claims-tracking-service
+
+        # ── Renewal Service ──────────────────────────────────────────────────
+        - id: renewal-service
+          uri: lb://renewal-service
+          predicates:
+            - Path=/api/renewals/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: renewal-service-cb
+                fallbackUri: forward:/fallback/renewal-service
+
+        # ── Quote Service ────────────────────────────────────────────────────
+        - id: quote-service
+          uri: lb://quote-service
+          predicates:
+            - Path=/api/quotes/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: quote-service-cb
+                fallbackUri: forward:/fallback/quote-service
+
+        # ── Support Service ──────────────────────────────────────────────────
+        - id: support-service
+          uri: lb://support-service
+          predicates:
+            - Path=/api/support/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: support-service-cb
+                fallbackUri: forward:/fallback/support-service
+
+        # ── Notification Service ─────────────────────────────────────────────
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: notification-service-cb
+                fallbackUri: forward:/fallback/notification-service
+
+        # ── Analytics Service (Admin only) ───────────────────────────────────
+        - id: analytics-service
+          uri: lb://analytics-service
+          predicates:
+            - Path=/api/analytics/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: analytics-service-cb
+                fallbackUri: forward:/fallback/analytics-service
+
+# ─── Eureka Client ───────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://eureka-admin:eureka-password@localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    instance-id: ${spring.application.name}:${server.port}
+
+# ─── JWT ─────────────────────────────────────────────────────────────────────
+jwt:
+  secret: ${JWT_SECRET:dGhpcyBpcyBhIHZlcnkgc2VjdXJlIGp3dCBzZWNyZXQga2V5IGZvciBpbnN1cmFuY2Ugc3lzdGVt}
+  expiration: 900000   # 15 minutes in ms
+
+# ─── Resilience4j Circuit Breaker ────────────────────────────────────────────
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        record-exceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.cloud.gateway.support.NotFoundException
+    instances:
+      auth-server-cb:
+        base-config: default
+      user-service-cb:
+        base-config: default
+      policy-service-cb:
+        base-config: default
+      policy-search-cb:
+        base-config: default
+      application-service-cb:
+        base-config: default
+      claims-service-cb:
+        base-config: default
+      claims-tracking-cb:
+        base-config: default
+      renewal-service-cb:
+        base-config: default
+      quote-service-cb:
+        base-config: default
+      support-service-cb:
+        base-config: default
+      notification-service-cb:
+        base-config: default
+      analytics-service-cb:
+        base-config: default
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s   # 5 second timeout per downstream call
+
+# ─── Actuator ────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, gateway, prometheus, circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+  metrics:
+    prometheus:
+      export:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+# ─── Logging ─────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.sun.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway.route: DEBUG
+    io.github.resilience4j: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/api-gateway.log
+
+# ─── Info ─────────────────────────────────────────────────────────────────────
+info:
+  app:
+    name: Insurance API Gateway
+    description: Central API Gateway for Insurance Microservices
+    version: 1.0.0
