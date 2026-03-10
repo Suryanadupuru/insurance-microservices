@@ -5,7 +5,7 @@
 -- but uses its own table prefix: auth_users, auth_user_roles
 -- ─────────────────────────────────────────────────────────────────────────────
 
-CREATE TABLE IF NOT EXISTS auth_users (
+CREATE TABLE IF NOT EXISTS users (
     id                          BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     -- Identity
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS auth_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE IF NOT EXISTS auth_user_roles (
+CREATE TABLE IF NOT EXISTS user_roles (
     user_id     BIGINT      NOT NULL,
     role        VARCHAR(50) NOT NULL,
     PRIMARY KEY (user_id, role),
