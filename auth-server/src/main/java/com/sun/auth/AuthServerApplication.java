@@ -2,7 +2,7 @@ package com.sun.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+//import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * Auth Server — Handles all authentication and authorization.
@@ -17,7 +17,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * Port: 8090
  */
 @SpringBootApplication
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 public class AuthServerApplication {
 
     public static void main(String[] args) {

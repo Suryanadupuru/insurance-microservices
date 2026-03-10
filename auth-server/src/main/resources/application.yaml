@@ -7,7 +7,7 @@ spring:
 
   # ── Database ──────────────────────────────────────────────────────────────
   datasource:
-    url: jdbc:mysql://localhost:3306/insurance_microservices_system?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.2:3306/insurance_microservices_system
     username: root
     password: surya
     driver-class-name: com.mysql.cj.jdbc.Driver
