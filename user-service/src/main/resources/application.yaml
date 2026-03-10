@@ -7,7 +7,7 @@ spring:
 
   # ── Database ───────────────────────────────────────────────────────────────
   datasource:
-    url: jdbc:mysql://localhost:3306/insurance_microservices_system?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.2:3306/insurance_microservices_system
     username: root
     password: surya
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -27,10 +27,10 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
   # ── SQL Init ───────────────────────────────────────────────────────────────
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:/db/migration/create_users_tables.sql
+ # sql:
+  #  init:
+   #   mode: always
+    #  schema-locations: classpath:/db/migration/create_users_tables.sql
 
   # ── Config Server (enable after all services are built) ───────────────────
   #config:
